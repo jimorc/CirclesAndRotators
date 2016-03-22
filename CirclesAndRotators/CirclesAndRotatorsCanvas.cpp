@@ -59,7 +59,7 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
 	glUseProgram(m_circleShaderProgram);
 	// set outer radius for circle here. We will be modulating it in later
 	// example
-	glUniform1f(m_circleOuterRadius, 0.2f);
+	glUniform1f(m_circleOuterRadius, 80.0f);
 	// draw the square that will contain the circle.
 	// The circle is created inside the square in the circle fragment shader
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -70,11 +70,13 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
 void CirclesAndRotatorsCanvas::CreateSquareForCircle()
 {
 	// define vertices for the two triangles
-	float points[] = {
-		-0.2f, -0.2f,
-		0.2f, -0.2f,
-		0.2f, 0.2f,
-		-0.2f, 0.2f
+    wxSize canvasSize = GetSize();
+    float w = static_cast<float>(canvasSize.x) / 2.0f; 
+    float points[] = {
+        -80.0f, -80.0f, 0.0f, w,
+        80.0f, -80.0f, 0.0f, w,
+        80.0f, 80.0f, 0.0f, w,
+        -80.0f, 80.0f, 0.0f, w
 	};
 	// define the indices for the triangles
 	GLuint elements[] = {
@@ -125,10 +127,10 @@ void CirclesAndRotatorsCanvas::BuildCircleVertexShader()
 {
 	const GLchar* vertexSource =
 		"#version 330 core\n"
-		"in vec2 position;"
+		"in vec4 position;"
 		"void main()"
 		"{"
-		"    gl_Position = vec4(position, 0.0, 1.0);"
+		"    gl_Position = position;"
 		"}";
 	m_circleVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(m_circleVertexShader, 1, &vertexSource, NULL);
@@ -146,8 +148,8 @@ void CirclesAndRotatorsCanvas::BuildCircleFragmentShader()
 		"void main()"
 		"{"
 		// convert fragment coordinate (i.e. pixel) to view coordinate
-		"   float x = (gl_FragCoord.x - viewDimensions.x / 2.0f) / (viewDimensions.x / 2.0f);"
-		"   float y = (gl_FragCoord.y - viewDimensions.y / 2.0f) / (viewDimensions.y / 2.0f);"
+        "   float x = gl_FragCoord.x - viewDimensions.x / 2.0f;"
+        "   float y = gl_FragCoord.y - viewDimensions.y / 2.0f;"
 		// discard fragment if outside the circle
 		"   float len = sqrt(x * x + y * y);"
 		"	if (len > outerRadius) {"
