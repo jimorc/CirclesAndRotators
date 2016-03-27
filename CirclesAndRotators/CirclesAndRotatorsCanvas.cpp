@@ -112,7 +112,7 @@ void CirclesAndRotatorsCanvas::BuildCircleShaderProgram()
 	// set up position attribute used in circle vertex shader
 	GLint posAttrib = glGetAttribLocation(m_circleShaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(posAttrib, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 	// set up the uniform arguments
 	m_circleOuterRadius = glGetUniformLocation(m_circleShaderProgram, "outerRadius");
 	m_viewDimensions = glGetUniformLocation(m_circleShaderProgram, "viewDimensions");
@@ -153,7 +153,7 @@ void CirclesAndRotatorsCanvas::BuildCircleFragmentShader()
 		// discard fragment if outside the circle
 		"   float len = sqrt(x * x + y * y);"
 		"	if (len > outerRadius) {"
-		"		discard;"
+        "		discard;"
 		"	}"
 		// else set its colour to green
 		"	outColor = vec4(0.0, 1.0, 0.0, 1.0);"
