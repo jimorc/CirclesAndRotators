@@ -38,5 +38,6 @@ private:
 	GLuint m_circleShaderProgram;
 	GLint m_circleOuterRadius;
 	GLint m_viewDimensions;
+    GLint m_transform;
 };
 

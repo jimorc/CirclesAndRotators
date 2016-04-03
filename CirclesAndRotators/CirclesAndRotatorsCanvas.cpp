@@ -1,5 +1,9 @@
 #include "wx/wxprec.h"
 #include <GL/glew.h>
+#define GLM_FORCE_CXX14
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "CirclesAndRotatorsCanvas.h"
 
 #pragma comment(lib, "glew32.lib")
@@ -10,7 +14,7 @@ CirclesAndRotatorsCanvas::CirclesAndRotatorsCanvas(wxWindow* parent, wxWindowID 
 	const wxString& name,
 	const wxPalette& palette)
 	: wxGLCanvas(parent, id, attribList, pos, size, style, name, palette)
-{
+{ 
 	m_context = std::make_unique<wxGLContext>(this);
 	Bind(wxEVT_PAINT, &CirclesAndRotatorsCanvas::OnPaint, this);
 
@@ -57,6 +61,12 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// use the circleShaderProgram
 	glUseProgram(m_circleShaderProgram);
+    // set the transform
+    wxSize canvasSize = GetSize();
+    float w = static_cast<float>(canvasSize.x) / 2.0f;
+    glm::mat4 transform;
+    transform = glm::translate(transform, glm::vec3(220.0f / w, -150.0f / w, 0.0f / w));
+    glUniformMatrix4fv(m_transform, 1, GL_FALSE, glm::value_ptr(transform));
 	// set outer radius for circle here. We will be modulating it in later
 	// example
 	glUniform1f(m_circleOuterRadius, 80.0f);
@@ -72,11 +82,11 @@ void CirclesAndRotatorsCanvas::CreateSquareForCircle()
 	// define vertices for the two triangles
     wxSize canvasSize = GetSize();
     float w = static_cast<float>(canvasSize.x) / 2.0f; 
-    float points[] = {
-        -80.0f, -80.0f, 0.0f, w,
-        80.0f, -80.0f, 0.0f, w,
-        80.0f, 80.0f, 0.0f, w,
-        -80.0f, 80.0f, 0.0f, w
+    glm::vec4 points[] = {
+        {-80.0f, -80.0f, 0.0f, w},
+        {80.0f, -80.0f, 0.0f, w},
+        {80.0f, 80.0f, 0.0f, w},
+        {-80.0f, 80.0f, 0.0f, w}
 	};
 	// define the indices for the triangles
 	GLuint elements[] = {
@@ -116,6 +126,7 @@ void CirclesAndRotatorsCanvas::BuildCircleShaderProgram()
 	// set up the uniform arguments
 	m_circleOuterRadius = glGetUniformLocation(m_circleShaderProgram, "outerRadius");
 	m_viewDimensions = glGetUniformLocation(m_circleShaderProgram, "viewDimensions");
+    m_transform = glGetUniformLocation(m_circleShaderProgram, "transform");
 	// The canvas size is fixed (and should be square), so initialize the value here
 	glUseProgram(m_circleShaderProgram);
 	wxSize canvasSize = GetSize();
@@ -125,12 +136,13 @@ void CirclesAndRotatorsCanvas::BuildCircleShaderProgram()
 
 void CirclesAndRotatorsCanvas::BuildCircleVertexShader()
 {
-	const GLchar* vertexSource =
-		"#version 330 core\n"
-		"in vec4 position;"
+    const GLchar* vertexSource =
+        "#version 330 core\n"
+        "in vec4 position;"
+        "uniform mat4 transform;"
 		"void main()"
 		"{"
-		"    gl_Position = position;"
+		"    gl_Position = transform * position;"
 		"}";
 	m_circleVertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(m_circleVertexShader, 1, &vertexSource, NULL);
@@ -140,16 +152,20 @@ void CirclesAndRotatorsCanvas::BuildCircleVertexShader()
 
 void CirclesAndRotatorsCanvas::BuildCircleFragmentShader()
 {
-	const GLchar* fragmentSource =
-		"#version 330 core\n"
-		"uniform vec2 viewDimensions;"
-		"uniform float outerRadius;"
-		"out vec4 outColor;"
-		"void main()"
-		"{"
+    const GLchar* fragmentSource =
+        "#version 330 core\n"
+        "uniform vec2 viewDimensions;"
+        "uniform float outerRadius;"
+        "uniform mat4 transform;"
+        "out vec4 outColor;"
+        "void main()"
+        "{"
+        // transform the center of the circle. We need this later to determine if the
+        // fragment is inside or outside the circle.
+        "   vec4 center = transform * vec4(0.0f, 0.0f, 0.0f, viewDimensions.x / 2.0f);"
 		// convert fragment coordinate (i.e. pixel) to view coordinate
-        "   float x = gl_FragCoord.x - viewDimensions.x / 2.0f;"
-        "   float y = gl_FragCoord.y - viewDimensions.y / 2.0f;"
+        "   float x = gl_FragCoord.x - center.x - viewDimensions.x / 2.0f;"
+        "   float y = gl_FragCoord.y - center.y - viewDimensions.y / 2.0f;"
 		// discard fragment if outside the circle
 		"   float len = sqrt(x * x + y * y);"
 		"	if (len > outerRadius) {"
