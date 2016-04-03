@@ -163,7 +163,7 @@ void CirclesAndRotatorsCanvas::BuildCircleFragmentShader()
         // transform the center of the circle. We need this later to determine if the
         // fragment is inside or outside the circle.
         "   vec4 center = transform * vec4(0.0f, 0.0f, 0.0f, viewDimensions.x / 2.0f);"
-		// convert fragment coordinate (i.e. pixel) to view coordinate
+		// translate fragment coordinate to coordinate relative to center of circle
         "   float x = gl_FragCoord.x - center.x - viewDimensions.x / 2.0f;"
         "   float y = gl_FragCoord.y - center.y - viewDimensions.y / 2.0f;"
 		// discard fragment if outside the circle
