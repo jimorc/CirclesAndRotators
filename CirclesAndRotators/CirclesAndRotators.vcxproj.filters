@@ -24,6 +24,9 @@
     <ClInclude Include="CirclesAndRotatorsCanvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="glCircle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CirclesAndRotatorsApp.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CirclesAndRotatorsCanvas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glCircle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

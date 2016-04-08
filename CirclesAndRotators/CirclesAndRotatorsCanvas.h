@@ -1,7 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 #include "wx/glcanvas.h"
+
+class GlCircle;         // forward declaration
 
 class CirclesAndRotatorsCanvas : public wxGLCanvas
 {
@@ -21,23 +24,25 @@ public:
 private:
 	void InitializeGLEW();
 	void SetupGraphics();
-	void CreateSquareForCircle();
+	void CreateCircles();
 	void BuildCircleShaderProgram();
 	void BuildCircleVertexShader();
 	void BuildCircleFragmentShader();
 	void CheckShaderCompileStatus(GLuint shader, const std::string& msg) const;
 	void OnPaint(wxPaintEvent& event);
+    void OnTimer(wxTimerEvent& event);
+
+    static const int INTERVAL = 1000 / 60;
+    static const int TIMERNUMBER = 3;
+    std::unique_ptr<wxTimer> m_timer;
+    std::chrono::time_point<std::chrono::high_resolution_clock> m_startTime;
 
 	std::unique_ptr<wxGLContext> m_context;
 	// circle stuff
-	GLuint m_circleVbo;
-	GLuint m_circleVao;
-	GLuint m_circleEbo;
+    std::unique_ptr<GlCircle> m_circle1;
+    std::unique_ptr<GlCircle> m_circle2;
 	GLuint m_circleVertexShader;
 	GLuint m_circleFragmentShader;
 	GLuint m_circleShaderProgram;
-	GLint m_circleOuterRadius;
-	GLint m_viewDimensions;
-    GLint m_transform;
 };
 
