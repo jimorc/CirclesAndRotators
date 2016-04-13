@@ -4,7 +4,8 @@
 #include <chrono>
 #include "wx/glcanvas.h"
 
-class GlCircle;         // forward declaration
+class GlCircle;                     // forward declaration
+class GlEquilateralTriangle;        // forward declaration
 
 class CirclesAndRotatorsCanvas : public wxGLCanvas
 {
@@ -25,10 +26,14 @@ private:
 	void InitializeGLEW();
 	void SetupGraphics();
 	void CreateCircles();
+    void CreateTriangles();
 	void BuildCircleShaderProgram();
 	void BuildCircleVertexShader();
 	void BuildCircleFragmentShader();
-	void CheckShaderCompileStatus(GLuint shader, const std::string& msg) const;
+    void BuildEquilatoralTriangleShaderProgram();
+    void BuildEquilatoralTriangleVertexShader();
+    void BuildEquilatoralTriangleFragmentShader();
+    void CheckShaderCompileStatus(GLuint shader, const std::string& msg) const;
 	void OnPaint(wxPaintEvent& event);
     void OnTimer(wxTimerEvent& event);
 
@@ -44,5 +49,11 @@ private:
 	GLuint m_circleVertexShader;
 	GLuint m_circleFragmentShader;
 	GLuint m_circleShaderProgram;
+
+    // triangle stuff
+    std::unique_ptr<GlEquilateralTriangle> m_triangle1;
+    GLuint m_triangleVertexShader;
+    GLuint m_triangleFragmentShader;
+    GLuint m_triangleShaderProgram;
 };
 

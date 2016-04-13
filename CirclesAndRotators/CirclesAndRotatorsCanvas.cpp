@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "CirclesAndRotatorsCanvas.h"
 #include "glCircle.h"
+#include "GlEquilateralTriangle.h"
 
 #pragma comment(lib, "glew32.lib")
 
@@ -38,6 +39,10 @@ CirclesAndRotatorsCanvas::~CirclesAndRotatorsCanvas()
 	glDeleteProgram(m_circleShaderProgram);
 	glDeleteShader(m_circleFragmentShader);
 	glDeleteShader(m_circleVertexShader);
+
+    glDeleteProgram(m_triangleShaderProgram);
+    glDeleteShader(m_triangleFragmentShader);
+    glDeleteShader(m_triangleVertexShader);
 }
 
 void CirclesAndRotatorsCanvas::InitializeGLEW()
@@ -54,10 +59,13 @@ void CirclesAndRotatorsCanvas::SetupGraphics()
 {
 	BuildCircleShaderProgram();
     CreateCircles();
+    BuildEquilatoralTriangleShaderProgram();
+    CreateTriangles();
 }
 
 void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
 {
+    SetCurrent(*m_context);
 	// set background to black
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -80,6 +88,17 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
     rotation = glm::rotate(rotation, time * 5e-10f, glm::vec3(0.0f, 0.0f, 1.0f));
     transrotate = rotation * transform;
     m_circle2->Paint(transrotate, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+    
+    glUseProgram(m_triangleShaderProgram);
+    transform = glm::mat4();
+    transform = glm::translate(transform, glm::vec3(-300.0f  * sin(time* 1.0e-9f) / w, 35.0f / w, 0.0f / w));
+    rotation = glm::rotate(rotation, time * 5e-9f, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 scale;
+    scale = glm::scale(scale, glm::vec3(0.5f, 0.5f, 0.5f));
+    glm::mat4 triRotation;
+    triRotation = glm::rotate(triRotation, time * 4e-10f, glm::vec3(0.0f, 0.0f, 1.0f));
+    transrotate = triRotation * transform  *rotation * scale;
+    m_triangle1->Paint(transrotate);
 	glFlush();
 	SwapBuffers();
 }
@@ -97,6 +116,13 @@ void CirclesAndRotatorsCanvas::CreateCircles()
     float w = static_cast<float>(canvasSize.x) / 2.0f; 
     m_circle1 = std::make_unique<GlCircle>(80.0f, w, m_circleShaderProgram);
     m_circle2 = std::make_unique<GlCircle>(30.0f, w, m_circleShaderProgram);
+}
+
+void CirclesAndRotatorsCanvas::CreateTriangles()
+{
+    wxSize canvasSize = GetSize();
+    float w = static_cast<float>(canvasSize.x) / 2.0f;
+    m_triangle1 = std::make_unique<GlEquilateralTriangle>(50.0f, w, m_triangleShaderProgram);
 }
 
 void CirclesAndRotatorsCanvas::BuildCircleShaderProgram()
@@ -150,13 +176,61 @@ void CirclesAndRotatorsCanvas::BuildCircleFragmentShader()
         "	if (len > outerRadius) {"
         "		discard;"
         "	}"
-        // else set its colour to green
+        // else set its colour
         "	outColor = color;"
 		"}";
 	m_circleFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(m_circleFragmentShader, 1, &fragmentSource, NULL);
 	glCompileShader(m_circleFragmentShader);
 	CheckShaderCompileStatus(m_circleFragmentShader, "Circle Fragment Shader did not compile");
+}
+
+void CirclesAndRotatorsCanvas::BuildEquilatoralTriangleShaderProgram()
+{
+    // build the triangle shaders
+    BuildEquilatoralTriangleVertexShader();
+    BuildEquilatoralTriangleFragmentShader();
+    // create and link circle shader program
+    m_triangleShaderProgram = glCreateProgram();
+    glAttachShader(m_triangleShaderProgram, m_triangleVertexShader);
+    glAttachShader(m_triangleShaderProgram, m_triangleFragmentShader);
+    glBindFragDataLocation(m_triangleShaderProgram, 0, "OutColor");
+    glLinkProgram(m_triangleShaderProgram);
+}
+
+void CirclesAndRotatorsCanvas::BuildEquilatoralTriangleVertexShader()
+{
+    const GLchar* vertexSource =
+        "#version 330 core\n"
+        "in vec4 position;"
+        "in vec4 inColor;"
+        "out vec4 outColor;"
+        "uniform mat4 transform;"
+        "void main()"
+        "{"
+        "    gl_Position = transform * position;"
+        "    outColor = inColor;"
+        "}";
+    m_triangleVertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(m_triangleVertexShader, 1, &vertexSource, NULL);
+    glCompileShader(m_triangleVertexShader);
+    CheckShaderCompileStatus(m_triangleVertexShader, "Triangle Vertex Shader did not compile.");
+}
+
+void CirclesAndRotatorsCanvas::BuildEquilatoralTriangleFragmentShader()
+{
+    const GLchar* fragmentSource =
+        "#version 330 core\n"
+        "in vec4 outColor;"
+        "out vec4 OutColor;"
+        "void main()"
+        "{"
+        "	OutColor = outColor;"
+        "}";
+    m_triangleFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(m_triangleFragmentShader, 1, &fragmentSource, NULL);
+    glCompileShader(m_triangleFragmentShader);
+    CheckShaderCompileStatus(m_triangleFragmentShader, "Triangle Fragment Shader did not compile");
 }
 
 void CirclesAndRotatorsCanvas::CheckShaderCompileStatus(GLuint shader, const std::string& msg) const

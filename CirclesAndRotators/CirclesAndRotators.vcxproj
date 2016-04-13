@@ -114,12 +114,14 @@
     <ClInclude Include="CirclesAndRotatorsCanvas.h" />
     <ClInclude Include="CirclesAndRotatorsFrame.h" />
     <ClInclude Include="glCircle.h" />
+    <ClInclude Include="GlEquilateralTriangle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CirclesAndRotatorsApp.cpp" />
     <ClCompile Include="CirclesAndRotatorsCanvas.cpp" />
     <ClCompile Include="CirclesAndRotatorsFrame.cpp" />
     <ClCompile Include="glCircle.cpp" />
+    <ClCompile Include="GlEquilateralTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
