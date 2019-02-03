@@ -1,6 +1,6 @@
 #include "wx/wxprec.h"
 #include <GL/glew.h>
-#define GLM_FORCE_CXX14
+#define GLM_FORCE_CXX17
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
