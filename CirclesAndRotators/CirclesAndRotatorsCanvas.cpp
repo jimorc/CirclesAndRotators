@@ -65,7 +65,7 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
     // set the transform
     wxSize canvasSize = GetSize();
     float w = static_cast<float>(canvasSize.x) / 2.0f;
-    glm::mat4 transform;
+    glm::mat4 transform(1);
     transform = glm::translate(transform, glm::vec3(220.0f / w, -150.0f / w, 0.0f / w));
     glUniformMatrix4fv(m_transform, 1, GL_FALSE, glm::value_ptr(transform));
 	// set outer radius for circle here. We will be modulating it in later
