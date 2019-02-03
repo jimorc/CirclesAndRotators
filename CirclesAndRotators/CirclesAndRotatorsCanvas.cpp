@@ -7,6 +7,7 @@
 #include "CirclesAndRotatorsCanvas.h"
 
 #pragma comment(lib, "glew32.lib")
+#pragma comment(lib, "OpenGL32.lib")
 
 CirclesAndRotatorsCanvas::CirclesAndRotatorsCanvas(wxWindow* parent, wxWindowID id,
 	const int* attribList, const wxPoint& pos,
