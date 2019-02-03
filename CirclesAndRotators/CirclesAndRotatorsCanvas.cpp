@@ -69,14 +69,14 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
     float w = static_cast<float>(canvasSize.x) / 2.0f;
     glm::mat4 transform(1);
     transform = glm::translate(transform, glm::vec3(220.0f / w, -150.0f / w, 0.0f / w));
-    glm::mat4 rotation;
+    glm::mat4 rotation(1);
     auto t_now = std::chrono::high_resolution_clock::now();
     auto time = (t_now - m_startTime).count();
     rotation = glm::rotate(rotation, time * 2.5e-10f, glm::vec3(0.0f, 0.0f, 1.0f));    glm::mat4 transrotate;
     transrotate = rotation * transform;
     m_circle1->Paint(transrotate, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
-    transform = glm::mat4();
+    transform = glm::mat4(1);
     transform = glm::translate(transform, glm::vec3(-200.0f / w, -75.0f / w, 0.0f / w));
     rotation = glm::rotate(rotation, time * 5e-10f, glm::vec3(0.0f, 0.0f, 1.0f));
     transrotate = rotation * transform;
