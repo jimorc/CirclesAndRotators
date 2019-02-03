@@ -1,6 +1,6 @@
 #include "wx/wxprec.h"
 #include <GL/glew.h>
-#define GLM_FORCE_CXX14
+#define GLM_FORCE_CXX17
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,6 +8,7 @@
 #include "glCircle.h"
 
 #pragma comment(lib, "glew32.lib")
+#pragma comment(lib, "OpenGL32.lib")
 
 CirclesAndRotatorsCanvas::CirclesAndRotatorsCanvas(wxWindow* parent, wxWindowID id,
 	const int* attribList, const wxPoint& pos,
@@ -66,7 +67,7 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
     // set the transform
     wxSize canvasSize = GetSize();
     float w = static_cast<float>(canvasSize.x) / 2.0f;
-    glm::mat4 transform;
+    glm::mat4 transform(1);
     transform = glm::translate(transform, glm::vec3(220.0f / w, -150.0f / w, 0.0f / w));
     glm::mat4 rotation;
     auto t_now = std::chrono::high_resolution_clock::now();
