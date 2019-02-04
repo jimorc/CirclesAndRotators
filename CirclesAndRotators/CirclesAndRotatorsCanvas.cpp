@@ -91,12 +91,12 @@ void CirclesAndRotatorsCanvas::OnPaint(wxPaintEvent& event)
     m_circle2->Paint(transrotate, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     
     glUseProgram(m_triangleShaderProgram);
-    transform = glm::mat4();
+    transform = glm::mat4(1);
     transform = glm::translate(transform, glm::vec3(-300.0f  * sin(time* 1.0e-9f) / w, 35.0f / w, 0.0f / w));
     rotation = glm::rotate(rotation, time * 5e-9f, glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 scale;
+    glm::mat4 scale(1);
     scale = glm::scale(scale, glm::vec3(0.5f, 0.5f, 0.5f));
-    glm::mat4 triRotation;
+    glm::mat4 triRotation(1);
     triRotation = glm::rotate(triRotation, time * 4e-10f, glm::vec3(0.0f, 0.0f, 1.0f));
     transrotate = triRotation * transform  *rotation * scale;
     m_triangle1->Paint(transrotate);
